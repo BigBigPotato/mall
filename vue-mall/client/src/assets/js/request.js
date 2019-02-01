@@ -9,6 +9,7 @@ axios.interceptors.request.use(function (config) {
 })
 
 axios.interceptors.response.use(function (res) {
+  console.log(res)
   return res
 }, function (err) {
   return Promise.reject(err)

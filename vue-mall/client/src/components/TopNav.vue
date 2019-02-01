@@ -5,13 +5,42 @@
       <span>/</span>
       <slot></slot>
     </div>
-    <div class="pull-right">
+    <div class="pull-right right-sort">
       <span>sortBy：</span>
-      <span class="active">default</span>
-      <span>price<i class="icon-arrow-down"></i></span>
+      <span
+        class="hover-style"
+        :class="[sortBy === 'default' ? 'active' : '']"
+        @click="sortGoodsByPrice('default')"
+      >default</span>
+      <div
+        class="hover-style price-sort"
+        :class="[sortBy === 'price' ? 'active' : '']"
+        @click="sortGoodsByPrice('price')"
+      >
+        <span>price</span>
+        <i class="arrow-icon" :class="[sortBy === 'price' ? (upDown === 1 ? 'sortUp' : 'sortDown') : '']"></i>
+      </div>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'TopNav',
+  props: {
+    sortBy: String,
+    upDown: Number
+  },
+  data () {
+    return {}
+  },
+  methods: {
+    sortGoodsByPrice (item) {
+      this.$emit('sort-goods', item)
+    }
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 @import '../assets/style/validate';
@@ -23,6 +52,43 @@
   box-shadow: 0px 5px 15px #eee;
   span{
     margin: 0 6px;
+  }
+  .right-sort{
+    display: flex;
+    align-items: center;
+    .hover-style{
+      &:hover,
+      &.active{
+        color: $INFO-COLOR;
+        span{
+          color: inherit;
+        }
+        .arrow-icon{
+          border-color: $INFO-COLOR transparent transparent;
+        }
+      }
+      &:hover{
+        cursor: pointer;
+      }
+      &.active{
+        .sortUp{
+          transform: rotate(180deg)
+        }
+        .sortDown{
+          transform: rotate(0)
+        }
+      }
+    }
+    .price-sort{
+      display: flex;
+      align-items: center;
+      .arrow-icon{
+        border-width: 4px;
+        border-color: #333 transparent transparent;
+        border-style: solid;
+        transition: all 0.25s;
+      }
+    }
   }
 }
 </style>

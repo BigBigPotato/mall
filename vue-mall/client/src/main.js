@@ -5,6 +5,10 @@ import store from './store'
 
 Vue.config.productionTip = false
 
+Vue.filter('imgPrefix', function (val) {
+  return 'http://localhost:3001/images/' + val
+})
+
 new Vue({
   router,
   store,

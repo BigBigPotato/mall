@@ -1,4 +1,5 @@
 export default {
   login: '',
-  goodsList: '/goodsList'
+  goodsList: '/goods/list',
+  priceRange: '/goods/priceRange'
 }
