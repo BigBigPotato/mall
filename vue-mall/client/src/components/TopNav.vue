@@ -44,7 +44,6 @@ export default {
 
 <style lang="scss" scoped>
 @import '../assets/style/validate';
-@import '../assets/style/iconStyle.css';
 .top-nav{
   width: $MAX-WIDTH;
   margin: 0 auto;
