@@ -3,17 +3,113 @@
     <div class="header-wrapper">
       <img src="../assets/images/smile.png" class="left-icon"/>
       <div class="right-content">
-        <span>login</span>
-        <span>name</span>
-        <span>logout</span>
+        <span v-show="!hasLogin" class="behave" @click="handleLogin">Login</span>
+        <span v-show="!hasLogin" class="behave" @click="handleRegister">Register</span>
+        <span v-show="hasLogin">[{{userNameCookie}}]</span>
+        <span v-show="hasLogin" class="behave" @click="toLogout">logout</span>
       </div>
     </div>
+    <pop
+      :showPop="showPop"
+      popWidth="36%"
+      :popTitle="popTitle"
+      :sureButtonText="sureButtonText"
+      @close-pop="toClosePop"
+      @sure-pop="loginORregister"
+    >
+      <input type="text" placeholder="用户名" class="login-input" v-model.trim="userName"/>
+      <input type="password" placeholder="密码" class="login-input" v-model.trim="userPwd"/>
+    </pop>
   </div>
 </template>
 
 <script>
+import { setCookie, delCookie } from '@/assets/js/util'
+import { mapState, mapGetters, mapMutations } from 'Vuex'
+import Pop from '@/components/Pop'
+import httpRequest from '@/assets/js/request'
+
 export default {
-  name: 'CommonHeader'
+  name: 'CommonHeader',
+  components: {
+    Pop
+  },
+  data () {
+    return {
+      showPop: false,
+      popTitle: '',
+      sureButtonText: '',
+      userName: '',
+      userPwd: ''
+    }
+  },
+  computed: {
+    ...mapState([
+      'userNameCookie'
+    ]),
+    ...mapGetters([
+      'hasLogin'
+    ])
+  },
+  methods: {
+    ...mapMutations([
+      'toChangeUserName'
+    ]),
+    handleLogin () {
+      this.resetPopData(true, '登录')
+    },
+    handleRegister () {
+      this.resetPopData(true, '注册')
+    },
+    resetPopData (showPopFlag, titleName) {
+      this.showPop = showPopFlag
+      this.popTitle = titleName
+      this.sureButtonText = titleName
+      this.userName = ''
+      this.userPwd = ''
+    },
+    toClosePop () {
+      this.resetPopData(false, '')
+    },
+    toLogout () {
+      delCookie('userName')
+      this.toChangeUserName(false)
+    },
+    loginORregister () {
+      let {
+        userName,
+        userPwd
+      } = this.$data
+      // console.log(userName, userPwd)
+      if (!userName || !userPwd) return
+      let api = 'login'
+      if (this.popTitle === '注册') {
+        api = 'register'
+      }
+      httpRequest.post(api, {
+        userName,
+        userPwd
+      }).then((res) => {
+        if (res.data.code === 1000) {
+          let infoText = res.data.msg
+          this.$message({
+            type: 'success',
+            infoText
+          })
+          if (this.popTitle === '登录') {
+            setCookie('userName', res.data.result[0].userName)
+            this.toChangeUserName()
+          }
+          this.toClosePop()
+        } else {
+          this.$message({
+            type: 'error',
+            infoText: res.data.msg
+          })
+        }
+      })
+    }
+  }
 }
 </script>
 
@@ -39,6 +135,20 @@ export default {
         margin: 0 10px;
         color: #fff;
       }
+      .behave:hover{
+        cursor: pointer;
+        color: $INFO-COLOR;
+      }
+    }
+  }
+  .login-input{
+    width: 100%;
+    height: 40px;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #e5e5e5;
+    &:last-child{
+      margin: 20px 0 0;
     }
   }
 }
