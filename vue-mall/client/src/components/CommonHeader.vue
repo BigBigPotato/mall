@@ -73,6 +73,7 @@ export default {
     },
     toLogout () {
       delCookie('userName')
+      delCookie('userId')
       this.toChangeUserName(false)
     },
     loginORregister () {
@@ -97,7 +98,9 @@ export default {
             infoText
           })
           if (this.popTitle === '登录') {
-            setCookie('userName', res.data.result[0].userName)
+            let user = res.data.result[0]
+            setCookie('userId', user.userId)
+            setCookie('userName', user.userName)
             this.toChangeUserName()
           }
           this.toClosePop()

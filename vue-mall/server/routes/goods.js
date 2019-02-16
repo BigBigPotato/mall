@@ -2,13 +2,13 @@ var express = require('express');
 var router = express.Router(),
     mongodbServer = require('../public/js/mongodbServer')
 
-router.get('/list', function(req, res) {
+router.post('/list', function(req, res) {
   let {
     page,
     limit,
     priceRange = null,
     sortBy = null
-  } = req.query;
+  } = req.body;
   let parameter = {
     collectionName: 'goods',
     page,
@@ -57,7 +57,7 @@ router.get('/list', function(req, res) {
   })
 });
 
-router.get('/priceRange', function (req, res) {
+router.post('/priceRange', function (req, res) {
   mongodbServer.selectData({
     collectionName: 'goods',
     backResult: {

@@ -1,8 +1,23 @@
 import axios from 'axios'
 import apiMap from './apiMap'
+import { getCookie } from '@/assets/js/util'
+import LoadingPlugin from '@/plugin/loading/loading'
 
 // 拦截器
 axios.interceptors.request.use(function (config) {
+  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/login']
+  if (!(noRequireLoginApi.includes(config.url))) {
+    let userId = getCookie('userId')
+    if (userId) {
+      config.data.userId = getCookie('userId')
+    } else {
+      LoadingPlugin.Message({
+        type: 'error',
+        infoText: '请先登录'
+      })
+      return Promise.reject(new Error('请先登录'))
+    }
+  }
   return config
 }, function (err) {
   return Promise.reject(err)

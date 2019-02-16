@@ -30,7 +30,7 @@ router.post('/login', function(req, res, next) {
   }
   mongodbServer.selectData(params, function (result) {
     if (result.length) {
-      if (result[0].userPwd === Number(userPwd)) {
+      if (result[0].userPwd === userPwd) {
         res.json({
           code: 1000,
           msg: '登陆成功',
@@ -101,8 +101,10 @@ router.post('/register', function (req, res, next) {
         msg: '该账号已存在'
       })
     } else {
+      let randomNumber = Math.floor(Math.random() * 10)
       mongodbServer.insertData('user', [
         {
+          userId: String(new Date().getTime()) + randomNumber,
           userName,
           userPwd
         }
@@ -114,6 +116,30 @@ router.post('/register', function (req, res, next) {
           })
         }
       })
+    }
+  })
+})
+
+router.post('/addCart', function (req, res, next) {
+  let {
+    userId,
+    goodsId
+  } = req.body
+  mongodbServer.selectData({
+    collectionName: 'user',
+    findWhat: {
+      userId
+    }
+  }, function (result) {
+    if (result.orders.length) {
+      let hasGoods = result.orders.findIndex((item) => {
+        return item.goodsId === goodsId
+      })
+      if (hasGoods) {
+        
+      } else {
+
+      }
     }
   })
 })

@@ -31,7 +31,7 @@
           <div class="detail-container">
             <p class="goods-title">{{item.productName}}</p>
             <p class="goods-price">${{item.salePrice}}</p>
-            <button type="button" class="add-car-btn">加入购物车</button>
+            <button type="button" class="add-cart-btn" @click="toAddCart(item.productId)">加入购物车</button>
           </div>
         </li>
       </ul>
@@ -109,16 +109,16 @@ export default {
       }
       document.documentElement.style.overflow = 'hidden'
       this.$refs.loadingIcon.style.display = 'flex'
-      httpRequest.get('goodsList', parameter).then((res) => {
+      httpRequest.post('goodsList', parameter).then((res) => {
         this.loadingDataFlag = false
         switch (res.data.code) {
           case 1002:
-            // 无数据，注销监听滚动事件
+            // 无数据，注销滚动监听
             this.removeScrollListener()
             this.noMsg = true
             break
           case 1001:
-            // 数据少于一页，注销监听滚动事件
+            // 数据少于一页，注销滚动监听
             this.removeScrollListener()
             this.noMsg = true
           case 1000:
@@ -132,7 +132,7 @@ export default {
       })
     },
     getGoodsPriceRange () {
-      httpRequest.get('priceRange').then((res) => {
+      httpRequest.post('priceRange').then((res) => {
         this.goodsPriceRange = res.data.result
       })
     },
@@ -154,6 +154,11 @@ export default {
       }
       this.resetData()
       this.getGoodsList()
+    },
+    toAddCart (id) {
+      httpRequest.post('addCart', {
+        goodsId: id
+      }).then((res) => {})
     }
   }
 }
@@ -244,7 +249,7 @@ export default {
         margin: 20px 0 0;
         color: $DANGER-COLOR;
       }
-      .add-car-btn{
+      .add-cart-btn{
         width: 100%;
         height: 40px;
         line-height: 40px;
