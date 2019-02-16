@@ -32,7 +32,7 @@ router.get('/list', function(req, res) {
         // 数据少于一页
         res.json({
           code: 1001,
-          msg: '查询成功',
+          msg: '查询成功，无更多数据',
           result: {
             list: result,
             count: num
@@ -51,8 +51,7 @@ router.get('/list', function(req, res) {
     } else {
       res.json({
         code: 1002,
-        msg: '未查询到数据',
-        result: {}
+        msg: '未查询到数据'
       })
     }
   })

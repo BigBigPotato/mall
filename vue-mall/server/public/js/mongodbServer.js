@@ -51,7 +51,14 @@ module.exports = {
   },
   //查
   selectData (params, cb) {
-    let {collectionName, findWhat = {}, backResult = null, sortParams = '', page = 0, limit = 20} = params;
+    let {
+      collectionName,
+      findWhat = {},
+      backResult = null,
+      sortParams = null,
+      page = 0,
+      limit = 20
+    } = params;
     page = Number(page);
     limit = Number(limit);
     this.connectSql()
