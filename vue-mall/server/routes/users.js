@@ -120,26 +120,84 @@ router.post('/register', function (req, res, next) {
   })
 })
 
+
+function pushOrder(userId, goodsId, res) {
+  mongodbServer.updateOneData('orders', {
+    userId
+  }, {
+    $push: {
+      orders: {
+        goodsId,
+        number: 1
+      }
+    }
+  }, function (result) {
+      if (result.modifiedCount === 1) {
+        res.json({
+          code: 1000,
+          msg: '添加购物车成功'
+        })
+      }
+  })
+}
 router.post('/addCart', function (req, res, next) {
   let {
     userId,
     goodsId
   } = req.body
   mongodbServer.selectData({
-    collectionName: 'user',
+    collectionName: 'orders',
     findWhat: {
       userId
     }
   }, function (result) {
-    if (result.orders.length) {
-      let hasGoods = result.orders.findIndex((item) => {
-        return item.goodsId === goodsId
-      })
-      if (hasGoods) {
-        
+    if (result.length) {
+      let orders = result[0].orders
+      if (orders.length) {
+        let hasSameGoods = orders.find((item) => item.goodsId === goodsId)
+        if (hasSameGoods) {
+          mongodbServer.updateOneData('orders', {
+            userId,
+            "orders.goodsId": goodsId
+          }, {
+            $inc: {
+              "orders.$.number": 1
+            }
+          }, function (result3) {
+            if (result3.modifiedCount === 1) {
+              res.json({
+                code: 1000,
+                msg: '添加购物车成功'
+              })
+            }
+          })
+        } else {
+          pushOrder(userId, goodsId, res)
+        }
       } else {
-
+        // 购物车没有商品
+        pushOrder(userId, goodsId, res)
       }
+    } else {
+      // 首次加入商品进购物车
+      mongodbServer.insertData('orders', [
+        {
+          userId,
+          orders: [
+            {
+              goodsId,
+              number: 1
+            }
+          ]
+        }
+      ], function (result2) {
+        if (result2.insertedCount === 1) {
+          res.json({
+            code: 1000,
+            msg: '添加购物车成功'
+          })
+        }
+      })
     }
   })
 })

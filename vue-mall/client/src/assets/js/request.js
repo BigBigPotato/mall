@@ -5,7 +5,7 @@ import LoadingPlugin from '@/plugin/loading/loading'
 
 // 拦截器
 axios.interceptors.request.use(function (config) {
-  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/login']
+  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/register']
   if (!(noRequireLoginApi.includes(config.url))) {
     let userId = getCookie('userId')
     if (userId) {

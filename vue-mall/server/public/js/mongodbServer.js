@@ -14,7 +14,14 @@ module.exports = {
       })
     })
   },
-  //增
+  /**
+   * 增
+   * @param {*} collectionName 
+   * @param {*} parameter: [
+   *    {}
+   * ]
+   * @param {*} cb 
+   */
   insertData (collectionName, parameter, cb) {
     this.connectSql()
       .then((db) => {
@@ -25,7 +32,12 @@ module.exports = {
         })
       })
   },
-  //删
+  /**
+   * 删
+   * @param {*} collectionName 
+   * @param {*} parameter: {}
+   * @param {*} cb 
+   */
   deleteData (collectionName, parameter, cb) {
     this.connectSql()
       .then((db) => {
@@ -37,7 +49,14 @@ module.exports = {
       })
   },
   //改
-  updateData (collectionName, updateWhere, parameter, cb) {
+  /**
+   * 更新多条数据
+   * @param {*} collectionName 
+   * @param {*} updateWhere: {} 
+   * @param {*} parameter: {}
+   * @param {*} cb 
+   */
+  updateManyData (collectionName, updateWhere, parameter, cb) {
     this.connectSql()
       .then((db) => {
         db.db('mall').collection(collectionName).updateMany(updateWhere, {
@@ -49,7 +68,37 @@ module.exports = {
         })
       })
   },
-  //查
+  /**
+   * 更新一条数据
+   * @param {*} collectionName 
+   * @param {*} updateWhere: {} 
+   * @param {*} parameter: {
+   *    $set: {}
+   * }
+   * @param {*} cb 
+   */
+  updateOneData (collectionName, updateWhere, parameter, cb) {
+    this.connectSql()
+      .then((db) => {
+        db.db('mall').collection(collectionName).updateOne(updateWhere, parameter, function (err, res) {
+          if (err) throw err
+          db.close()
+          cb(res)
+        })
+      })
+  },
+  /**
+   * 查
+   * @param {*} params: {
+   *  collectionName,
+   *  findWhat = {},
+   *  backResult = null,
+   *  sortParams = null,
+   *  page = 0,
+   *  limit = 20
+   * }
+   * @param {*} cb 
+   */
   selectData (params, cb) {
     let {
       collectionName,
@@ -84,6 +133,33 @@ module.exports = {
             db.close()
             cb(res, num)
           })
+        })
+      })
+  },
+  /**
+   * 左关联查询
+   * @param {*} collectionName 
+   * @param {*} from：关联集合 
+   * @param {*} localField：字段名
+   * @param {*} foreignField：关联集合字段名
+   * @param {*} as：新生成字段名
+   */
+  selectDataLeft (collectionName, from, localField, foreignField, as) {
+    this.connectSql()
+      .then((db) => {
+        db.db('mall').collection(collectionName).aggregate([
+          {
+            $lookup: {
+              from,
+              localField,
+              foreignField,
+              as
+            }
+          }
+        ]).toArray(function (err, res) {
+          if (err) throw err
+          db.close()
+          cb(res)
         })
       })
   }

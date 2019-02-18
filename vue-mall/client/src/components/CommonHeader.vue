@@ -6,6 +6,7 @@
         <span v-show="!hasLogin" class="behave" @click="handleLogin">Login</span>
         <span v-show="!hasLogin" class="behave" @click="handleRegister">Register</span>
         <span v-show="hasLogin">[{{userNameCookie}}]</span>
+        <router-link to="/cart" tag="span"  class="behave" v-show="hasLogin">Cart</router-link>
         <span v-show="hasLogin" class="behave" @click="toLogout">logout</span>
       </div>
     </div>

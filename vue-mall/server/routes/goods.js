@@ -15,7 +15,7 @@ router.post('/list', function(req, res) {
     limit
   }
   if (priceRange) {
-    priceRange = JSON.parse(priceRange)
+    // priceRange = JSON.parse(priceRange)
     parameter.findWhat = {
       "salePrice": {
         "$gte": priceRange.startPrice,
@@ -23,9 +23,7 @@ router.post('/list', function(req, res) {
       }
     }
   }
-  if (sortBy) {
-    parameter.sortParams = JSON.parse(sortBy) 
-  }
+  sortBy ? parameter.sortParams = sortBy : ''
   mongodbServer.selectData(parameter, function (result, num) {
     if (result.length) {
       if (result.length < limit) {

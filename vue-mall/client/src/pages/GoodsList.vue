@@ -158,7 +158,14 @@ export default {
     toAddCart (id) {
       httpRequest.post('addCart', {
         goodsId: id
-      }).then((res) => {})
+      }).then((res) => {
+        if (res.data.code === 1000) {
+          this.$message({
+            type: 'success',
+            infoText: '添加购物车成功'
+          })
+        }
+      })
     }
   }
 }

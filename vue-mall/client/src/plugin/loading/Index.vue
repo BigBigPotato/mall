@@ -64,7 +64,7 @@ export default {
 }
 .v-enter-active,
 .v-leave-active{
-  transition: all 0.4s ease-in-out;
+  transition: top 0.4s ease-in-out;
 }
 .loading-container{
   position: fixed;
@@ -89,15 +89,7 @@ export default {
     font-size: 14px;
     border-radius: 4px;
     background: #fff;
-    // animation: slideDown 0.5s;
-    // @keyframes slideDown {
-    //   from {
-    //     top: -50px;
-    //   }
-    //   to {
-    //     top: 10px;
-    //   }
-    // }
+    box-shadow: 1px 1px 18px #e5e5e5;
     &.info,
     &.loading{
       color: #333;
