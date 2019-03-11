@@ -31,3 +31,48 @@ li{
 .active{
   color: $INFO-COLOR;
 }
+
+// 无信息
+.no-msg{
+  font-size: 12px;
+  color: #999999;
+}
+
+// 选择框
+@mixin circle ($circleW: 20px, $circleH: 20px) {
+  display: inline-block;
+  border: 1px solid #999;
+  width: $circleW;
+  height: $circleH;
+  border-radius: 100%;
+  &:hover{
+    cursor: pointer;
+  }
+}
+@mixin checked-circle ($circleW: 20px, $circleH: 20px) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $circleW;
+  height: $circleH;
+  margin: 0 auto;
+  line-height: 0;
+  border-radius: 100%;
+  background: $DANGER-COLOR;
+  &:hover{
+    cursor: pointer;
+  }
+  .white-dot{
+    display: inline-block;
+    width: $circleW * 0.3;
+    height: $circleH * 0.3;
+    line-height: 0;
+    border-radius: 100%;
+    background: #fff;
+  }
+}
+
+// cursor
+button[disabled]{
+  cursor: not-allowed !important;
+}

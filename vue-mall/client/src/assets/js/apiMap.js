@@ -3,5 +3,8 @@ export default {
   register: '/user/register',
   addCart: '/user/addCart',
   goodsList: '/goods/list',
-  priceRange: '/goods/priceRange'
+  priceRange: '/goods/priceRange',
+  cartList: '/cart/list',
+  deleteCartGoods: '/cart/delete',
+  editCartGoodsNum: '/cart/editGoodsNum'
 }

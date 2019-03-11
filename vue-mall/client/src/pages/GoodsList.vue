@@ -156,6 +156,7 @@ export default {
       this.getGoodsList()
     },
     toAddCart (id) {
+      console.log(1)
       httpRequest.post('addCart', {
         goodsId: id
       }).then((res) => {

@@ -144,7 +144,7 @@ module.exports = {
    * @param {*} foreignField：关联集合字段名
    * @param {*} as：新生成字段名
    */
-  selectDataLeft (collectionName, from, localField, foreignField, as) {
+  selectDataLeft (collectionName, from, localField, foreignField, as, cb) {
     this.connectSql()
       .then((db) => {
         db.db('mall').collection(collectionName).aggregate([

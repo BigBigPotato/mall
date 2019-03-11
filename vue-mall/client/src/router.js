@@ -4,6 +4,7 @@ import GoodsList from '@/pages/GoodsList'
 import Address from '@/pages/Address'
 import ConfirmOrder from '@/pages/ConfirmOrder'
 import OrderSuccess from '@/pages/OrderSuccess'
+import Cart from '@/pages/Cart'
 
 Vue.use(Router)
 
@@ -19,6 +20,11 @@ export default new Router({
       path: '/goods',
       name: 'goodsList',
       component: GoodsList
+    },
+    {
+      path: '/cart',
+      name: 'cart',
+      component: Cart
     },
     {
       path: '/address',

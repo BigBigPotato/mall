@@ -89,7 +89,7 @@ export default {
     font-size: 14px;
     border-radius: 4px;
     background: #fff;
-    box-shadow: 1px 1px 18px #e5e5e5;
+    box-shadow: 1px 1px 18px #999;
     &.info,
     &.loading{
       color: #333;

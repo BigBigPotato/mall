@@ -3,6 +3,9 @@ import apiMap from './apiMap'
 import { getCookie } from '@/assets/js/util'
 import LoadingPlugin from '@/plugin/loading/loading'
 
+axios.defaults.retry = 5
+axios.defaults.retryDelay = 1000
+
 // 拦截器
 axios.interceptors.request.use(function (config) {
   let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/register']
@@ -28,8 +31,23 @@ axios.interceptors.response.use(function (res) {
   return res
 }, function (err) {
   return Promise.reject(err)
+  // console.log(err.config)
+  // let config = err.config
+  // if (!config || !config.retry) return Promise.reject(err)
+  // // 设置已经发起重新请求的次数
+  // config._retryCount = config._retryCount || 0
+  // if (config._retryCount >= config.retry) return Promise.reject(err)
+  // ++config._retryCount
+  // let backoff = new Promise(function (resolve) {
+  //   setTimeout(() => {
+  //     resolve()
+  //   }, config.retryDelay)
+  // })
+  // return backoff.then(() => {
+  //   config.baseURL = ''
+  //   return axios(config)
+  // })
 })
-
 let options = {
   baseURL: '/api'
 }
