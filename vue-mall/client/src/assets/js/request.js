@@ -8,7 +8,7 @@ axios.defaults.retryDelay = 1000
 
 // 拦截器
 axios.interceptors.request.use(function (config) {
-  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/register']
+  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/register', '/address/province', '/address/city', '/address/area']
   if (!(noRequireLoginApi.includes(config.url))) {
     let userId = getCookie('userId')
     if (userId) {
@@ -53,7 +53,7 @@ let options = {
 }
 // 重写post、get
 export default {
-  post (path, parameter, opt = {}) {
+  post (path, parameter = {}, opt = {}) {
     let config = Object.assign({}, options, opt)
     return new Promise(function (resolve, reject) {
       axios.post(apiMap[path], parameter, config)
@@ -65,7 +65,7 @@ export default {
         })
     })
   },
-  get (path, parameter, opt = {}) {
+  get (path, parameter = {}, opt = {}) {
     let config = Object.assign({}, options, opt, { params: parameter })
     return new Promise(function (resolve, reject) {
       axios.get(apiMap[path], config)

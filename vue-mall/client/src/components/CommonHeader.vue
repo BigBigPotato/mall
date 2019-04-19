@@ -18,8 +18,10 @@
       @close-pop="toClosePop"
       @sure-pop="loginORregister"
     >
-      <input type="text" placeholder="用户名" class="login-input" v-model.trim="userName"/>
-      <input type="password" placeholder="密码" class="login-input" v-model.trim="userPwd"/>
+      <div>
+        <input type="text" placeholder="用户名" class="login-input" v-model.trim="userName"/>
+        <input type="password" placeholder="密码" class="login-input" v-model.trim="userPwd"/>
+      </div>
     </pop>
   </div>
 </template>

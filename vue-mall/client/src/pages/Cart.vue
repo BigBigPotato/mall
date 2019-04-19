@@ -11,14 +11,14 @@
         <th>Edit</th>
       </tr>
       <tr>
-        <td class="no-msg" colspan="6" v-if="!addCheckCartList.length">暂无数据</td>
+        <td class="no-msg" colspan="6" v-if="!cartList.length">暂无数据</td>
       </tr>
-      <tr v-for="(item, index) of addCheckCartList" :key="item.goodsId">
+      <tr v-for="(item, index) of cartList" :key="item.goodsId">
         <td>
           <!--no check-->
-          <i class="circle" @click="toToggleCheck"></i>
+          <i class="circle" v-show="!item.checked" @click="toToggleCheck(index)"></i>
           <!--checked-->
-          <div class="checked-circle" v-show="false" @click="toToggleCheck">
+          <div class="checked-circle" v-show="item.checked" @click="toToggleCheck(index)">
             <i class="white-dot"></i>
           </div>
         </td>
@@ -43,19 +43,19 @@
         <td><i class="icon-bin" @click="toDeleteGoods(item.goodsId, index)"></i></td>
       </tr>
     </table>
-    <div class="price-check-all" v-if="addCheckCartList.length">
+    <div class="price-check-all" v-if="cartList.length">
       <div class="left-check">
         <!--no check-->
-        <i class="circle checkbox"></i>
+        <i class="circle checkbox" v-show="!hasCheckAllGoods" @click="toToggleAllCheck(true)"></i>
         <!--checked-->
-        <div class="checked-circle checkbox" v-show="false">
+        <div class="checked-circle checkbox" v-show="hasCheckAllGoods" @click="toToggleAllCheck(false)">
           <i class="white-dot"></i>
         </div>
         <label>Check all</label>
       </div>
       <div class="right-price">
         <p>Total price：<i>${{totalPrice}}</i></p>
-        <button type="button" class="checkout-btn">CHECKOUT</button>
+        <button type="button" class="checkout-btn" @click="toCheckOut">CHECKOUT</button>
       </div>
     </div>
   </section>
@@ -71,28 +71,27 @@ export default {
     return {
       cartList: [],
       page: 1,
-      checkedGoods: []
+      checkedGoods: [],
+      editGoodsNumTimer: null // 上一次修改number的计时器
     }
   },
   computed: {
     ...mapState([
       'pageSize'
     ]),
-    addCheckCartList () {
-      let newList = JSON.parse(JSON.stringify(this.cartList))
-      newList.forEach((item) => {
-        item.checked = false
-      })
-      return newList
-    },
     totalPrice () {
-      let price = 0;
+      let price = 0
       this.cartList.forEach((item) => {
         if (item.checked) {
-          price += Number(item.salePrice) * Number(item.number)
+          price += Number(item.goodsMsg.salePrice) * Number(item.number)
         }
-      });
+      })
       return price
+    },
+    hasCheckAllGoods () {
+      return this.cartList.every((item) => {
+        return item.checked
+      })
     }
   },
   mounted () {
@@ -100,13 +99,19 @@ export default {
   },
   methods: {
     getCartList () {
-      let page = this.page;
-      let limit = this.pageSize;
+      let page = this.page
+      let limit = this.pageSize
       newRequest.post('cartList', {
         page,
         limit
       }).then((res) => {
-        if (res.data.code === 1000) this.cartList = res.data.result
+        if (res.data.code === 1000) {
+          let rs = res.data.result
+          rs.forEach((item) => {
+            item.checked = false
+          })
+          this.cartList = rs
+        }
       })
     },
     handleMinusNum (goodsId, index) {
@@ -116,7 +121,14 @@ export default {
       this.toEditNum(goodsId, 1, 'plus', index)
     },
     handleEditNum (goodsId, index, e) {
-      this.toEditNum(goodsId, Number(e.target.value), 'edit', index)
+      this.editNumTimer(goodsId, index, e)
+    },
+    editNumTimer (goodsId, index, e) {
+      let editGoodsNumTimer = this.editGoodsNumTimer
+      if (editGoodsNumTimer) clearTimeout(editGoodsNumTimer)
+      this.editGoodsNumTimer = setTimeout(() => {
+        this.toEditNum(goodsId, Number(e.target.value), 'edit', index)
+      }, 500)
     },
     toEditNum (goodsId, number, type, index) {
       newRequest.post('editCartGoodsNum', {
@@ -131,11 +143,11 @@ export default {
           } else {
             this.cartList[index].number = activeGoodsNum + number
           }
+          this.$message({
+            type: 'success',
+            infoText: '修改成功'
+          })
         }
-        this.$message({
-          type: 'success',
-          infoText: '修改成功'
-        })
       })
     },
     toDeleteGoods (goodsId, index) {
@@ -150,7 +162,26 @@ export default {
         }
       })
     },
-    toToggleCheck () {}
+    toToggleCheck (index) {
+      let hasChecked = this.cartList[index].checked
+      this.cartList[index].checked = !hasChecked
+    },
+    toToggleAllCheck (flag) {
+      this.cartList.forEach((item) => {
+        item.checked = flag
+      })
+    },
+    toCheckOut () {
+      let goodsId = []
+      this.cartList.forEach((item) => {
+        item.checked ? goodsId.push(item.goodsId) : ''
+      })
+      newRequest.post('checkOutGoods', {
+        goodsId
+      }).then((res) => {
+        // todo
+      })
+    }
   }
 }
 </script>
@@ -227,6 +258,7 @@ export default {
       .edit-num{
         width: 40px;
         border: none;
+        outline: none;
         font-size: 16px;
         background: #f0f0f0;
         &:hover{

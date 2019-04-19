@@ -136,14 +136,15 @@ module.exports = {
         })
       })
   },
-  /**
-   * 左关联查询
-   * @param {*} collectionName 
-   * @param {*} from：关联集合 
-   * @param {*} localField：字段名
-   * @param {*} foreignField：关联集合字段名
-   * @param {*} as：新生成字段名
-   */
+    /**
+     * 左关联查询
+     * @param {*} collectionName
+     * @param {*} from：关联集合
+     * @param {*} localField：字段名
+     * @param {*} foreignField：关联集合字段名
+     * @param {*} as：新生成字段名
+     * @param cb
+     */
   selectDataLeft (collectionName, from, localField, foreignField, as, cb) {
     this.connectSql()
       .then((db) => {

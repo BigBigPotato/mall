@@ -4,19 +4,19 @@
     <section class="address-box">
       <h1 class="box-title">Shiping Address</h1>
       <ul class="clearfix">
-        <li class="box-item pull-left active">
+        <li class="box-item pull-left active" v-for="item of addressList" :key="item.addressId">
           <i class="delete-address">X</i>
           <p class="receiver">name</p>
           <p class="receive-address">address</p>
           <p>编码</p>
           <p class="default-tag">Default Address</p>
         </li>
-        <li class="box-item add-address pull-left">
+        <li class="box-item add-address pull-left" @click="handleAddAddress">
           <p class="add-icon">+</p>
           <p>Add new address</p>
         </li>
       </ul>
-      <p class="more-address">
+      <p class="more-address" v-if="addressList.length > 4">
         <span>more</span>
         <i class="arrow-icon"></i>
       </p>
@@ -34,16 +34,96 @@
     <div class="next-btn-container">
       <button type="button" class="next-btn">Next</button>
     </div>
+    <pop
+      :showPop="showAddAddress"
+      popTitle="添加地址"
+      popWidth="40%"
+      @close-pop="toClosePop"
+      @sure-pop="toAddAddress"
+    >
+      <div>
+        <input type="text" placeholder="收货人" class="address-input" v-model="receiveUser"/>
+        <address-link @get-data="getSelectedAddress"></address-link>
+        <input type="text" placeholder="详细地址" class="address-input" v-model="addressDetail"/>
+      </div>
+    </pop>
   </div>
 </template>
 
 <script>
 import Step from '@/components/Step'
+import Pop from '@/components/Pop'
+import AddressLink from '@/components/AddressLink'
+import newRequest from '@/assets/js/request'
 
 export default {
   name: 'Address',
   components: {
-    Step
+    Step,
+    Pop,
+    AddressLink
+  },
+  data () {
+    return {
+      addressList: [],
+      showAddAddress: false,
+      receiveUser: '',
+      addressDetail: '',
+      province: '',
+      city: '',
+      area: ''
+    }
+  },
+  mounted () {
+    this.getAddressList()
+  },
+  methods: {
+    getAddressList () {
+      newRequest.post('addressList').then((res) => {
+        if (res.data.code === 1000) this.addressList = res.data.result
+      })
+    },
+    handleAddAddress () {
+      this.showAddAddress = true
+    },
+    getSelectedAddress (address) {
+      this.province = address.province
+      this.city = address.city
+      this.area = address.area
+    },
+    toClosePop () {
+      this.showAddAddress = false
+    },
+    toAddAddress () {
+      let {
+        receiveUser,
+        addressDetail,
+        province,
+        city,
+        area
+      } = this.$data
+      if (!receiveUser || !addressDetail || !province || !city || !area) {
+        this.$message({
+          type: 'error',
+          infoText: '请填写完整地址'
+        })
+      }
+      newRequest.post('addAddress', {
+        receiveUser,
+        addressDetail,
+        province,
+        city,
+        area
+      }).then((res) => {
+        if (res.data.code === 1000) {
+          this.$message({
+            type: 'success',
+            infoText: '添加成功'
+          })
+          this.toClosePop()
+        }
+      })
+    }
   }
 }
 </script>
@@ -148,6 +228,13 @@ export default {
         cursor: pointer;
       }
     }
+  }
+  .address-input{
+    width: 70%;
+    height: 30px;
+    border: none;
+    border-bottom: 1px solid #e5e5e5;
+    outline: none;
   }
 }
 </style>

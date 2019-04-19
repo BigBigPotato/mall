@@ -13,14 +13,14 @@ router.post('/list', function (req, res, next) {
         limit
     } = req.body;
     mongodbServer.selectData({
-        collectionName: 'orders',
+        collectionName: 'carts',
         findWhat: {
             userId
         },
         page,
         limit
     }, function (result) {
-        if (!result.length || !result[0].orders.length) {
+        if (!result.length || !result[0].carts.length) {
             res.json({
                 code: 1005,
                 message: '购物车为空',
@@ -28,9 +28,9 @@ router.post('/list', function (req, res, next) {
             })
         } else {
             // 根据goodsId再查询商品信息，组合返回
-            let orders = result[0].orders;
+            let carts = result[0].carts;
             let goodsId = [];
-            orders.forEach((item) => {
+            carts.forEach((item) => {
                 goodsId.push(item.goodsId)
             });
             mongodbServer.selectData({
@@ -42,16 +42,16 @@ router.post('/list', function (req, res, next) {
                 }
             }, function (result2) {
                 for (let goodsItem of result2) {
-                    for (let ordersItem of orders) {
-                        if (goodsItem.productId === ordersItem.goodsId) {
-                            ordersItem.goodsMsg = goodsItem
+                    for (let cartsItem of carts) {
+                        if (goodsItem.productId === cartsItem.goodsId) {
+                            cartsItem.goodsMsg = goodsItem
                         }
                     }
                 }
                 res.json({
                     code: 1000,
                     message: '查询成功',
-                    result: orders
+                    result: carts
                 })
             })
         }
@@ -64,11 +64,11 @@ router.post('/delete', function (req, res, next) {
         goodsId,
         userId
     } = req.body;
-    mongodbServer.updateOneData('orders', {
+    mongodbServer.updateOneData('carts', {
         userId
     }, {
         $pull: {
-            orders: {
+            carts: {
                 goodsId
             }
         }
@@ -92,16 +92,25 @@ router.post('/editGoodsNum', function (req, res, next) {
    let {
        userId,
        goodsId,
-       number
+       number,
+       type
    } = req.body;
-   mongodbServer.updateOneData('orders', {
-       userId,
-       'orders.goodsId': goodsId
-   }, {
+   let parameter = {
        $inc: {
-           "orders.$.number": number
+           "carts.$.number": number
        }
-   }, function (result) {
+   };
+   if (type === 'edit') {
+       parameter = {
+           $set: {
+               "carts.$.number": number
+           }
+       }
+   }
+   mongodbServer.updateOneData('carts', {
+       userId,
+       'carts.goodsId': goodsId
+   }, parameter, function (result) {
        if (result.result.nModified === 1) {
            res.json({
                code: 1000,
@@ -114,6 +123,15 @@ router.post('/editGoodsNum', function (req, res, next) {
            })
        }
    })
+});
+
+// 结算
+router.post('/checkOut', function (req, res) {
+   let {
+       userId,
+       goodsId
+   } = req.body;
+   // todo
 });
 
 module.exports = router;

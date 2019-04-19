@@ -6,9 +6,7 @@
         :style="[alignCenter ? textAlignCenter : '']"
         class="pop-title"
       >{{popTitle}}</h1>
-      <div>
-        <slot></slot>
-      </div>
+      <slot></slot>
       <div v-show="showButtons" :style="[alignCenter ? btnCenter: '']">
         <button
           type="button"

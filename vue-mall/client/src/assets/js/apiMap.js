@@ -6,5 +6,11 @@ export default {
   priceRange: '/goods/priceRange',
   cartList: '/cart/list',
   deleteCartGoods: '/cart/delete',
-  editCartGoodsNum: '/cart/editGoodsNum'
+  editCartGoodsNum: '/cart/editGoodsNum',
+  checkOutGoods: '/cart/checkOut',
+  addressList: '/address/list',
+  province: '/address/province',
+  city: '/address/city',
+  area: '/address/area',
+  addAddress: '/address/add'
 }
