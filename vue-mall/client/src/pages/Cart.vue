@@ -15,12 +15,11 @@
       </tr>
       <tr v-for="(item, index) of cartList" :key="item.goodsId">
         <td>
-          <!--no check-->
-          <i class="circle" v-show="!item.checked" @click="toToggleCheck(index)"></i>
-          <!--checked-->
-          <div class="checked-circle" v-show="item.checked" @click="toToggleCheck(index)">
-            <i class="white-dot"></i>
-          </div>
+          <custom-checkbox
+            :checked="item.checked"
+            @handle-check="toToggleCheck(index)"
+            @handle-cancel="toToggleCheck(index)"
+          />
         </td>
         <td>
           <img :src="item.goodsMsg.productImage | imgPrefix" class="goods-img">
@@ -45,17 +44,22 @@
     </table>
     <div class="price-check-all" v-if="cartList.length">
       <div class="left-check">
-        <!--no check-->
-        <i class="circle checkbox" v-show="!hasCheckAllGoods" @click="toToggleAllCheck(true)"></i>
-        <!--checked-->
-        <div class="checked-circle checkbox" v-show="hasCheckAllGoods" @click="toToggleAllCheck(false)">
-          <i class="white-dot"></i>
-        </div>
-        <label>Check all</label>
+        <custom-checkbox
+          :checked="hasCheckAllGoods"
+          @handle-check="toToggleAllCheck(true)"
+          @handle-cancel="toToggleAllCheck(false)"
+        >
+          <label>Check all</label>
+        </custom-checkbox>
       </div>
       <div class="right-price">
         <p>Total price：<i>${{totalPrice}}</i></p>
-        <button type="button" class="checkout-btn" @click="toCheckOut">CHECKOUT</button>
+        <custom-button
+          text="CHECKOUT"
+          :customStyle="customStyle"
+          :hasActive="true"
+          @handle-click="toCheckOut"
+        ></custom-button>
       </div>
     </div>
   </section>
@@ -64,13 +68,25 @@
 <script>
 import newRequest from '@/assets/js/request'
 import { mapState } from 'vuex'
+import CustomCheckbox from '@/components/CustomCheckbox'
+import CustomButton from '@/components/CustomButton'
 
 export default {
   name: 'Cart',
+  components: {
+    CustomCheckbox,
+    CustomButton
+  },
   data () {
     return {
       cartList: [],
       page: 1,
+      customStyle: {
+        height: '55px',
+        padding: '0 28px',
+        margin: '0 0 0 20px',
+        'font-weight': 'bold'
+      },
       checkedGoods: [],
       editGoodsNumTimer: null // 上一次修改number的计时器
     }
@@ -172,14 +188,21 @@ export default {
       })
     },
     toCheckOut () {
-      let goodsId = []
+      let goods = []
       this.cartList.forEach((item) => {
-        item.checked ? goodsId.push(item.goodsId) : ''
+        item.checked ? goods.push({
+          goodsId: item.goodsId,
+          number: item.number
+        }) : ''
       })
+      if (!goods.length) return
       newRequest.post('checkOutGoods', {
-        goodsId
+        goods
       }).then((res) => {
-        // todo
+        if (res.data.code === 1000) {
+          let ordersId = res.data.result.ordersId
+          this.$router.push(`/address?ordersId=${ordersId}`)
+        }
       })
     }
   }
@@ -194,12 +217,6 @@ export default {
   margin: 40px auto;
   .container-title{
     font-size: 16px;
-  }
-  .circle{
-    @include circle()
-  }
-  .checked-circle{
-    @include checked-circle()
   }
   .cart-table{
     width: 100%;
@@ -298,15 +315,6 @@ export default {
         font-size: 16px;
         color: $DANGER-COLOR;
         font-weight: bold;
-      }
-      .checkout-btn{
-        height: 55px;
-        padding: 0 28px;
-        margin: 0 0 0 20px;
-        font-weight: bold;
-        border: none;
-        color: #fff;
-        background: $DANGER-COLOR;
       }
     }
   }
