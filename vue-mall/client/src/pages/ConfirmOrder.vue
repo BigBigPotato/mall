@@ -16,11 +16,7 @@
             <span>name</span>
           </td>
           <td>$266</td>
-          <td>
-            <button type="button" class="goods-num-btn">-</button>
-            <input type="text" value="1" class="goods-num"/>
-            <button type="button" class="goods-num-btn">+</button>
-          </td>
+          <td>x 8</td>
           <td>$266</td>
         </tr>
       </table>
@@ -45,20 +41,52 @@
       <span>Order total:</span>
       <i>$2499</i>
     </p>
-    <div class="clearfix foot-btn">
-      <button type="button" class="pull-left">Previous</button>
-      <button type="button" class="pull-right active">Proceed to payment</button>
+    <div class="foot-btn">
+      <custom-button
+        text="Previous"
+        :customStyle="buttonStyle"
+      ></custom-button>
+      <div class="right-btn-container">
+        <custom-button
+          text="Proceed to payment"
+          :customStyle="buttonStyle"
+          :hasActive="true"
+        ></custom-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Step from '@/components/Step'
+import CustomButton from '@/components/CustomButton'
+import newRequest from '@/assets/js/request'
 
 export default {
   name: 'ConfirmOrder',
   components: {
-    Step
+    Step,
+    CustomButton
+  },
+  data () {
+    return {
+      buttonStyle: {
+        'font-size': '16px',
+        'font-weight': 'bold'
+      }
+    }
+  },
+  mounted () {
+    this.getOrdersInfo()
+  },
+  methods: {
+    getOrdersInfo () {
+      newRequest.post('ordersInfo', {
+        ordersId: this.$route.query.ordersId
+      }).then((res) => {
+        // todo
+      })
+    }
   }
 }
 </script>
@@ -149,27 +177,11 @@ export default {
     }
   }
   .foot-btn{
+    display: flex;
     margin: 60px 0 0;
-    button{
-      width: 120px;
-      height: 42px;
-      background: none;
-      border: 1px solid $DANGER-COLOR;
-      font-size: 16px;
-      font-weight: bold;
-      color: $DANGER-COLOR;
-      &:hover{
-        cursor: pointer;
-      }
-      &.active{
-        width: 220px;
-        background: $DANGER-COLOR;
-        color: #fff;
-        transition: background 0.25s;
-        &:hover{
-          background: #f16f75;
-        }
-      }
+    .right-btn-container{
+      flex: 1;
+      text-align: right;
     }
   }
 }
