@@ -4,19 +4,30 @@
     <section class="address-box">
       <h1 class="box-title">Shiping Address</h1>
       <ul class="clearfix">
-        <li class="box-item pull-left active" v-for="item of addressList" :key="item.addressId">
-          <i class="delete-address">X</i>
-          <p class="receiver">name</p>
-          <p class="receive-address">address</p>
-          <p>编码</p>
-          <p class="default-tag">Default Address</p>
+        <li
+          class="box-item pull-left"
+          :class="[item.addressId === selectedAddress ? 'active' : '']"
+          v-for="(item, index) of filterAddress"
+          :key="item.addressId"
+          @click="toCheckAddress(item.addressId)"
+        >
+          <i class="delete-address" @click="toDeleteAddress(item.addressId, index)">X</i>
+          <p class="receiver">{{item.receiveUser}}</p>
+          <p class="receive-address">{{item.province}}{{item.city}}{{item.area}} {{item.addressDetail}}</p>
+          <p>{{item.addressMail}}</p>
+          <p class="default-tag" v-if="item.setDefault">Default Address</p>
         </li>
         <li class="box-item add-address pull-left" @click="handleAddAddress">
           <p class="add-icon">+</p>
           <p>Add new address</p>
         </li>
       </ul>
-      <p class="more-address" v-if="addressList.length > 4">
+      <p
+        class="more-address"
+        :class="[showAddressNum === addressList.length ? 'active' : '']"
+        v-if="addressList.length >= showAddressNum"
+        @click="toggleAddress"
+      >
         <span>more</span>
         <i class="arrow-icon"></i>
       </p>
@@ -32,7 +43,11 @@
       </ul>
     </section>
     <div class="next-btn-container">
-      <button type="button" class="next-btn">Next</button>
+      <custom-button
+        text="Next"
+        @handle-click="toNextStep"
+        :hasActive="true"
+      ></custom-button>
     </div>
     <pop
       :showPop="showAddAddress"
@@ -43,8 +58,23 @@
     >
       <div>
         <input type="text" placeholder="收货人" class="address-input" v-model="receiveUser"/>
-        <address-link @get-data="getSelectedAddress"></address-link>
+        <address-link
+          :province="province"
+          :city="city"
+          :area="area"
+          @send-data="getSelectedAddress"
+        ></address-link>
         <input type="text" placeholder="详细地址" class="address-input" v-model="addressDetail"/>
+        <input type="text" placeholder="邮政编码" class="mail-address" v-model="addressMail"/>
+        <div class="default-address">
+          <custom-checkbox
+            :checked="setDefault"
+            @handle-check="toggleDefault(true)"
+            @handle-cancel="toggleDefault(false)"
+          >
+            <label>设为默认地址</label>
+          </custom-checkbox>
+        </div>
       </div>
     </pop>
   </div>
@@ -54,6 +84,8 @@
 import Step from '@/components/Step'
 import Pop from '@/components/Pop'
 import AddressLink from '@/components/AddressLink'
+import CustomCheckbox from '@/components/CustomCheckbox'
+import CustomButton from '@/components/CustomButton'
 import newRequest from '@/assets/js/request'
 
 export default {
@@ -61,7 +93,9 @@ export default {
   components: {
     Step,
     Pop,
-    AddressLink
+    AddressLink,
+    CustomCheckbox,
+    CustomButton
   },
   data () {
     return {
@@ -71,7 +105,18 @@ export default {
       addressDetail: '',
       province: '',
       city: '',
-      area: ''
+      area: '',
+      addressMail: '',
+      setDefault: false,
+      showAddressNum: 3,
+      selectedAddress: 0
+    }
+  },
+  computed: {
+    filterAddress () {
+      return this.addressList.filter((val, index) => {
+        return index < this.showAddressNum
+      })
     }
   },
   mounted () {
@@ -82,6 +127,15 @@ export default {
       newRequest.post('addressList').then((res) => {
         if (res.data.code === 1000) this.addressList = res.data.result
       })
+    },
+    initData () {
+      this.receiveUser = ''
+      this.addressDetail = ''
+      this.addressMail = ''
+      this.setDefault = false
+      this.province = ''
+      this.city = ''
+      this.area = ''
     },
     handleAddAddress () {
       this.showAddAddress = true
@@ -94,15 +148,21 @@ export default {
     toClosePop () {
       this.showAddAddress = false
     },
+    toggleDefault (flag) {
+      this.setDefault = flag
+    },
     toAddAddress () {
       let {
         receiveUser,
         addressDetail,
         province,
         city,
-        area
+        area,
+        addressMail,
+        setDefault
       } = this.$data
-      if (!receiveUser || !addressDetail || !province || !city || !area) {
+      setDefault = setDefault ? 1 : 0
+      if (!receiveUser || !addressDetail || !province || !city || !area || !addressMail) {
         this.$message({
           type: 'error',
           infoText: '请填写完整地址'
@@ -113,7 +173,9 @@ export default {
         addressDetail,
         province,
         city,
-        area
+        area,
+        addressMail,
+        setDefault
       }).then((res) => {
         if (res.data.code === 1000) {
           this.$message({
@@ -121,8 +183,49 @@ export default {
             infoText: '添加成功'
           })
           this.toClosePop()
+          this.initData()
+          this.getAddressList()
         }
       })
+    },
+    toDeleteAddress (id, index) {
+      newRequest.post('deleteAddress', {
+        deleteId: id
+      }).then((res) => {
+        if (res.data.code === 1000) {
+          this.$message({
+            type: 'success',
+            infoText: '删除成功'
+          })
+          this.addressList.splice(index, 1)
+        }
+      })
+    },
+    toggleAddress () {
+      let addressListLen = this.addressList.length
+      this.showAddressNum = this.showAddressNum !== addressListLen ? addressListLen : 3
+    },
+    toCheckAddress (id) {
+      this.selectedAddress = id
+    },
+    toNextStep () {
+      let selectedAddress = this.selectedAddress
+      let ordersId = this.$route.query.ordersId
+      if (selectedAddress) {
+        newRequest.post('chooseAddress', {
+          addressId: selectedAddress,
+          ordersId
+        }).then((res) => {
+          if (res.data.code === 1000) {
+            this.$router.push(`/confirmOrder?ordersId=${ordersId}`)
+          }
+        })
+      } else {
+        this.$message({
+          type: 'error',
+          infoText: '请选择收件地址'
+        })
+      }
     }
   }
 }
@@ -144,17 +247,23 @@ export default {
       justify-content: center;
       font-size: 12px;
       color: $INFO-COLOR;
-      &:hover{
-        cursor: pointer;
+      &.active{
+        .arrow-icon{
+          transform: rotate(180deg);
+        }
       }
       span{
         color: inherit;
+        &:hover{
+          cursor: pointer;
+        }
       }
       .arrow-icon{
         margin: 4px 0 0 4px;
         border-width: 4px;
         border-style: solid;
         border-color: $INFO-COLOR transparent transparent;
+        transition: transform linear 0.3s;
       }
     }
     .box-item{
@@ -198,7 +307,9 @@ export default {
         margin: 10px 0 30px;
       }
       .default-tag{
-        margin: 20px 0 0;
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
         color: $INFO-COLOR;
       }
       .shiping-price{
@@ -214,27 +325,18 @@ export default {
   }
   .next-btn-container{
     text-align: right;
-    .next-btn{
-      width: 190px;
-      padding: 10px 0;
-      border: none;
-      font-size: 16px;
-      background: $DANGER-COLOR;
-      color: #fff;
-      text-align: center;
-      transition: background 0.25s;
-      &:hover{
-        background: #f16f75;
-        cursor: pointer;
-      }
-    }
   }
-  .address-input{
+  .address-input,
+  .mail-address{
     width: 70%;
     height: 30px;
     border: none;
     border-bottom: 1px solid #e5e5e5;
     outline: none;
+  }
+  .mail-address{
+    width: 50%;
+    margin: 20px 0 40px;
   }
 }
 </style>

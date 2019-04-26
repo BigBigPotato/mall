@@ -20,6 +20,11 @@ import newRequest from '@/assets/js/request'
 
 export default {
   name: 'AddressLink',
+  props: {
+    province: String,
+    city: String,
+    area: String
+  },
   data () {
     return {
       provinces: [],
@@ -27,7 +32,18 @@ export default {
       areas: [],
       selectedProvince: '',
       selectedCity: '',
-      selectedArea: ''
+      selectedArea: '',
+    }
+  },
+  watch: {
+    province (val) {
+      if (val === '') this.selectedProvince = val
+    },
+    city (val) {
+      if (val === '') this.selectedCity = val
+    },
+    area (val) {
+      if (val === '') this.selectedArea = val
     }
   },
   mounted () {
@@ -59,7 +75,7 @@ export default {
       this.selectedArea = ''
       this.areas = []
       this.getCity()
-      this.$emit('get-data', {
+      this.$emit('send-data', {
         province: this.selectedProvince,
         city: '',
         area: ''
@@ -69,14 +85,14 @@ export default {
       this.selectedArea = ''
       this.areas = []
       this.getArea()
-      this.$emit('get-data', {
+      this.$emit('send-data', {
         province: this.selectedProvince,
         city: this.selectedCity,
         area: ''
       })
     },
     handleAreaChange () {
-      this.$emit('get-data', {
+      this.$emit('send-data', {
         province: this.selectedProvince,
         city: this.selectedCity,
         area: this.selectedArea
