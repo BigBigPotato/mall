@@ -4,11 +4,19 @@ import { getCookie } from '@/assets/js/util'
 import LoadingPlugin from '@/plugin/loading/loading'
 
 axios.defaults.retry = 5
-axios.defaults.retryDelay = 1000
+axios.defaults.retryDelay = 2000
 
 // 拦截器
 axios.interceptors.request.use(function (config) {
-  let noRequireLoginApi = ['/goods/list', '/goods/priceRange', '/user/login', '/user/register', '/address/province', '/address/city', '/address/area']
+  let noRequireLoginApi = [
+    '/goods/list',
+    '/goods/priceRange',
+    '/user/login',
+    '/user/register',
+    '/address/province',
+    '/address/city',
+    '/address/area'
+  ]
   if (!(noRequireLoginApi.includes(config.url))) {
     let userId = getCookie('userId')
     if (userId) {
@@ -30,24 +38,32 @@ axios.interceptors.response.use(function (res) {
   console.log(res)
   return res
 }, function (err) {
-  return Promise.reject(err)
-  // console.log(err.config)
-  // let config = err.config
-  // if (!config || !config.retry) return Promise.reject(err)
-  // // 设置已经发起重新请求的次数
-  // config._retryCount = config._retryCount || 0
-  // if (config._retryCount >= config.retry) return Promise.reject(err)
-  // ++config._retryCount
-  // let backoff = new Promise(function (resolve) {
-  //   setTimeout(() => {
-  //     resolve()
-  //   }, config.retryDelay)
-  // })
-  // return backoff.then(() => {
-  //   config.baseURL = ''
-  //   return axios(config)
-  // })
+  let config = err.config
+  if (!config || !config.retry) return Promise.reject(err)
+  // 设置已经发起重新请求的次数
+  config._retryCount = config._retryCount || 0
+  if (config._retryCount >= config.retry) {
+    if (err.message.indexOf('500') > -1) {
+      LoadingPlugin.Message({
+        type: 'error',
+        infoText: '请检查网络'
+      })
+    }
+    return Promise.reject(err)
+  }
+  ++config._retryCount
+  let backOff = new Promise(function (resolve) {
+    setTimeout(() => {
+      resolve()
+    }, config.retryDelay)
+  })
+  return backOff.then(() => {
+    config.baseURL = ''
+    config.data = JSON.parse(config.data)
+    return axios(config)
+  })
 })
+
 let options = {
   baseURL: '/api'
 }
