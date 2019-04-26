@@ -1,13 +1,12 @@
 function setCookie (cname, cvalue, exdays = 7) { // 7天
   let d = new Date()
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
-  let expires = 'expires=' + d.toUTCString()
-  document.cookie = cname + '=' + cvalue + '; ' + expires
+  document.cookie = `${cname}=${cvalue};expires=${d.toUTCString()}`
 }
 
 function getCookie (cname) {
   let arr
-  let reg = new RegExp('(^| )' + cname + '=([^;]*)(;|$)')
+  let reg = new RegExp(`(^| )${cname}=([^;]*)(;|$)`)
   arr = document.cookie.match(reg)
   if (arr) {
     return (arr[2])
@@ -16,12 +15,12 @@ function getCookie (cname) {
   }
 }
 
-function delCookie (name) {
-  let exp = new Date()
-  exp.setTime(exp.getTime() - 1)
-  let cval = getCookie(name)
-  if (cval) {
-    document.cookie = name + '=' + cval + ';expires=' + exp.toUTCString()
+function delCookie (cname) {
+  let d = new Date()
+  d.setTime(d.getTime() - 1)
+  let cvalue = getCookie(cname)
+  if (cvalue) {
+    document.cookie = `${cname}=${cvalue};expires=${d.toUTCString()}`
   }
 }
 
