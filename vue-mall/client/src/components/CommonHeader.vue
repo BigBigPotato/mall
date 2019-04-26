@@ -1,7 +1,9 @@
 <template>
   <div class="header-container">
     <div class="header-wrapper">
-      <img src="../assets/images/smile.png" class="left-icon"/>
+      <router-link to="/">
+        <img src="../assets/images/smile.png" class="left-icon"/>
+      </router-link>
       <div class="right-content">
         <span v-show="!hasLogin" class="behave" @click="handleLogin">Login</span>
         <span v-show="!hasLogin" class="behave" @click="handleRegister">Register</span>
