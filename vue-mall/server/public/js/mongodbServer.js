@@ -16,11 +16,11 @@ module.exports = {
   },
   /**
    * 增
-   * @param {*} collectionName 
+   * @param {*} collectionName
    * @param {*} parameter: [
    *    {}
    * ]
-   * @param {*} cb 
+   * @param {*} cb
    */
   insertData (collectionName, parameter, cb) {
     this.connectSql()
@@ -34,9 +34,9 @@ module.exports = {
   },
   /**
    * 删
-   * @param {*} collectionName 
+   * @param {*} collectionName
    * @param {*} parameter: {}
-   * @param {*} cb 
+   * @param {*} cb
    */
   deleteData (collectionName, parameter, cb) {
     this.connectSql()
@@ -51,10 +51,10 @@ module.exports = {
   //改
   /**
    * 更新多条数据
-   * @param {*} collectionName 
-   * @param {*} updateWhere: {} 
+   * @param {*} collectionName
+   * @param {*} updateWhere: {}
    * @param {*} parameter: {}
-   * @param {*} cb 
+   * @param {*} cb
    */
   updateManyData (collectionName, updateWhere, parameter, cb) {
     this.connectSql()
@@ -70,12 +70,12 @@ module.exports = {
   },
   /**
    * 更新一条数据
-   * @param {*} collectionName 
-   * @param {*} updateWhere: {} 
+   * @param {*} collectionName
+   * @param {*} updateWhere: {}
    * @param {*} parameter: {
    *    $set: {}
    * }
-   * @param {*} cb 
+   * @param {*} cb
    */
   updateOneData (collectionName, updateWhere, parameter, cb) {
     this.connectSql()
@@ -92,17 +92,19 @@ module.exports = {
    * @param {*} params: {
    *  collectionName,
    *  findWhat = {},
+   *  findMatch = {},
    *  backResult = null,
    *  sortParams = null,
    *  page = 0,
    *  limit = 20
    * }
-   * @param {*} cb 
+   * @param {*} cb
    */
   selectData (params, cb) {
     let {
       collectionName,
       findWhat = {},
+      findMatch = {},
       backResult = null,
       sortParams = null,
       page = 0,
@@ -112,7 +114,7 @@ module.exports = {
     limit = Number(limit);
     this.connectSql()
       .then((db) => {
-        let findRes = db.db('mall').collection(collectionName).find(findWhat);
+        let findRes = db.db('mall').collection(collectionName).find(findWhat, findMatch);
         findRes.count(function (err, num) {
           if (err) throw err
           if (backResult) {
