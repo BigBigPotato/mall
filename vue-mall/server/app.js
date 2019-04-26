@@ -8,7 +8,8 @@ var bodyParser = require('body-parser');
 var goodsRouter = require('./routes/goods'),
     userRouter = require('./routes/users'),
     cartRouter = require('./routes/cart'),
-    addressRouter = require('./routes/address');
+    addressRouter = require('./routes/address'),
+    ordersRouter = require('./routes/orders');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/goods', goodsRouter);
 app.use('/api/user', userRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/address', addressRouter);
+app.use('/api/orders', ordersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
